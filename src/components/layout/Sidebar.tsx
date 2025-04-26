@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Calendar, ListCheck, ChevronDown, ChevronRight, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -15,9 +14,10 @@ interface CalendarItem {
 
 interface SidebarProps {
   onOpenCreateEvent: () => void;
+  onViewChange: (view: string) => void; // <-- ✅ ADD THIS
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ onOpenCreateEvent }) => {
+const Sidebar: React.FC<SidebarProps> = ({ onOpenCreateEvent, onViewChange }) => {
   const isMobile = useIsMobile();
   const [isOpen, setIsOpen] = useState(true);
   const [myCalendars, setMyCalendars] = useState<CalendarItem[]>([
@@ -55,7 +55,11 @@ const Sidebar: React.FC<SidebarProps> = ({ onOpenCreateEvent }) => {
       
       <div className="flex justify-between items-center mb-6">
         <h2 className="font-semibold text-lg">Calendar</h2>
-        <Button variant="outline" size="sm">
+        <Button 
+          variant="outline" 
+          size="sm"
+          onClick={() => onViewChange('listWeek')} // <-- ✅ MAKE AGENDA WORK
+        >
           <ListCheck className="h-4 w-4 mr-1" />
           <span>Agenda</span>
         </Button>
