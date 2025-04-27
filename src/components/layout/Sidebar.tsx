@@ -169,14 +169,6 @@ const Sidebar: React.FC<SidebarProps> = ({ onOpenCreateEvent, onViewChange, show
 
       <div className="flex justify-between items-center mb-6">
         <h2 className="font-semibold text-lg">Calendar</h2>
-        <Button 
-          variant="outline" 
-          size="sm"
-          onClick={() => onViewChange('listWeek')}
-        >
-          <ListCheck className="h-4 w-4 mr-1" />
-          <span>Agenda</span>
-        </Button>
       </div>
 
       <Button 
