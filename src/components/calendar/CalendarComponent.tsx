@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useImperativeHandle, useRef } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -13,20 +13,49 @@ interface CalendarComponentProps {
   setSelectedEvent: (event: any) => void;
   setIsEventModalOpen: (open: boolean) => void;
   setEvents: React.Dispatch<React.SetStateAction<any[]>>;
+  calendarRef: React.RefObject<FullCalendar>;
 }
 
-const CalendarComponent: React.FC<CalendarComponentProps> = ({
+const CalendarComponent = React.forwardRef<any, CalendarComponentProps>(({
   events = [],
   onOpenCreateEvent,
   setSelectedEvent,
   setIsEventModalOpen,
-}) => {
-  const calendarRef = useRef<FullCalendar>(null);
-
-  const [viewState, setViewState] = useState<ViewState>({
+  setEvents,
+  calendarRef,
+}, ref) => {
+  const [viewState, setViewState] = React.useState<ViewState>({
     currentView: "dayGridMonth",
     currentDate: new Date(),
   });
+
+  // Expose moveToDate to parent
+  useImperativeHandle(ref, () => ({
+    moveToDate(date: Date) {
+      const calendarApi = calendarRef.current?.getApi();
+      if (calendarApi) {
+        calendarApi.gotoDate(date);
+      }
+      setViewState((prev) => ({
+        ...prev,
+        currentDate: date,
+      }));
+      highlightEventAtDate(date);
+    }
+  }));
+
+  const highlightEventAtDate = (date: Date) => {
+    const eventElements = document.querySelectorAll(`.fc-event`);
+    eventElements.forEach((el) => {
+      const eventDate = el.getAttribute('data-date');
+      if (eventDate && new Date(eventDate).toDateString() === new Date(date).toDateString()) {
+        el.classList.add("animate-pulse", "ring-2", "ring-indigo-400");
+        setTimeout(() => {
+          el.classList.remove("animate-pulse", "ring-2", "ring-indigo-400");
+        }, 2000);
+      }
+    });
+  };
 
   const handleViewChange = (view: CalendarViewType) => {
     setViewState((prev) => ({
@@ -104,6 +133,7 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
       </div>
     </div>
   );
-};
+});
 
+CalendarComponent.displayName = "CalendarComponent";
 export default CalendarComponent;
