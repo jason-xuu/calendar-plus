@@ -14,6 +14,7 @@ interface CalendarComponentProps {
   setIsEventModalOpen: (open: boolean) => void;
   setEvents: React.Dispatch<React.SetStateAction<any[]>>;
   calendarRef: React.RefObject<FullCalendar>;
+  visibleCalendars: { [id: string]: boolean };
 }
 
 const CalendarComponent = React.forwardRef<any, CalendarComponentProps>(({
@@ -23,6 +24,7 @@ const CalendarComponent = React.forwardRef<any, CalendarComponentProps>(({
   setIsEventModalOpen,
   setEvents,
   calendarRef,
+  visibleCalendars,
 }, ref) => {
   const [viewState, setViewState] = React.useState<ViewState>({
     currentView: "dayGridMonth",
@@ -98,6 +100,9 @@ const CalendarComponent = React.forwardRef<any, CalendarComponentProps>(({
     setIsEventModalOpen(true);
   };
 
+  console.log('Visible Calendars:', visibleCalendars);
+  console.log('Events passed to calendar:', events);
+
   return (
     <div className="h-full flex flex-col">
       <CalendarToolbar
@@ -118,7 +123,11 @@ const CalendarComponent = React.forwardRef<any, CalendarComponentProps>(({
           selectMirror={true}
           dayMaxEvents={true}
           weekends={true}
-          events={events}
+          events={events.filter(event => {
+            const id = event.calendarId || event.calendar?.toLowerCase();
+            if (!id) return true; // holidays and others
+            return visibleCalendars[id] !== false;
+          })}
           dateClick={handleDateClick}
           eventClick={handleEventClick}
           height="100%"

@@ -11,6 +11,7 @@ const Index = () => {
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
   const [clickedDate, setClickedDate] = useState<Date | null>(null);
   const [events, setEvents] = useState<any[]>([]);
+  const [visibleCalendars, setVisibleCalendars] = useState<{ [id: string]: boolean }>({});
   
   const [showHolidays, setShowHolidaysState] = useState(() => {
     const stored = localStorage.getItem("showHolidays");
@@ -45,11 +46,16 @@ const Index = () => {
       } else {
         let combinedEvents = [...(data || [])];
 
+        combinedEvents = combinedEvents.map(ev => ({
+          ...ev,
+          calendarId: ev.calendarId || ev.calendar?.toLowerCase() || 'personal', // force calendarId
+        }));
+
         if (showHolidays) {
           const year = new Date().getFullYear();
           const holidayEvents = generateUSHolidays(year).map((holiday) => ({
             title: holiday.title,
-            start: holiday.date, // start, not date
+            start: holiday.date,
             color: "#60A5FA",
             textColor: "white",
           }));
@@ -62,6 +68,17 @@ const Index = () => {
     };
 
     fetchEvents();
+
+    // ⬇️ NEW: Load visibleCalendars from localStorage
+    const savedMyCalendars = JSON.parse(localStorage.getItem('myCalendars') || '[]');
+    const savedOtherCalendars = JSON.parse(localStorage.getItem('otherCalendars') || '[]');
+    const allCalendars = [...savedMyCalendars, ...savedOtherCalendars];
+
+    const visibilityMap: { [id: string]: boolean } = {};
+    for (const cal of allCalendars) {
+      visibilityMap[cal.id] = cal.visible;
+    }
+    setVisibleCalendars(visibilityMap);
   }, [showHolidays]);
 
   return (
@@ -72,15 +89,18 @@ const Index = () => {
       setShowHolidays={setShowHolidays}
       events={events}
       onSelectEvent={handleSelectEvent}
+      visibleCalendars={visibleCalendars}          
+      setVisibleCalendars={setVisibleCalendars}    
     >
       <CalendarComponent
-        ref={calendarComponentRef} // <-- NEW: give CalendarComponent a ref
+        ref={calendarComponentRef}
         events={events}
         setEvents={setEvents}
         onOpenCreateEvent={openCreateEventModal}
         setSelectedEvent={setSelectedEvent}
         setIsEventModalOpen={setIsEventModalOpen}
         calendarRef={calendarRef}
+        visibleCalendars={visibleCalendars}
       />
       <EventModal
         isOpen={isEventModalOpen}

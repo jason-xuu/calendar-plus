@@ -87,6 +87,17 @@ const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, event, date, s
     setFormData(prev => ({ ...prev, allDay: checked }));
   };
 
+  const calendarOptions = [
+    { id: 'personal', name: 'Personal', color: '#9b87f5' },
+    { id: 'work', name: 'Work', color: '#0EA5E9' },
+    { id: 'family', name: 'Family', color: '#D946EF' },
+  ];
+
+  const getCalendarId = (calendarName: string) => {
+    const match = calendarOptions.find(opt => opt.name === calendarName);
+    return match ? match.id : 'personal';
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -100,6 +111,7 @@ const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, event, date, s
         description: formData.description,
         location: formData.location,
         calendar: formData.calendar,
+        calendarId: formData.calendar.toLowerCase(), // ✅ add calendarId properly!
       };
 
       const { data, error } = await supabase.from('events').insert(newEvent).select();
@@ -132,12 +144,6 @@ const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, event, date, s
       setIsLoading(false);
     }
   };
-
-  const calendarOptions = [
-    { id: 'personal', name: 'Personal', color: '#9b87f5' },
-    { id: 'work', name: 'Work', color: '#0EA5E9' },
-    { id: 'family', name: 'Family', color: '#D946EF' },
-  ];
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>

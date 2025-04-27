@@ -18,9 +18,18 @@ interface SidebarProps {
   onViewChange: (view: string) => void;
   showHolidays: boolean;
   setShowHolidays: (value: boolean) => void;
+  visibleCalendars: { [id: string]: boolean };       
+  setVisibleCalendars: React.Dispatch<React.SetStateAction<{ [id: string]: boolean }>>;          
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ onOpenCreateEvent, onViewChange, showHolidays, setShowHolidays }) => {
+const Sidebar: React.FC<SidebarProps> = ({
+  onOpenCreateEvent,
+  onViewChange,
+  showHolidays,
+  setShowHolidays,
+  visibleCalendars,
+  setVisibleCalendars,
+}) => {
   const isMobile = useIsMobile();
   const [isOpen, setIsOpen] = useState(true);
 
@@ -43,9 +52,9 @@ const Sidebar: React.FC<SidebarProps> = ({ onOpenCreateEvent, onViewChange, show
       setMyCalendars(JSON.parse(savedMyCalendars));
     } else {
       setMyCalendars([
-        { id: '1', name: 'Personal', color: '#9b87f5', visible: true },
-        { id: '2', name: 'Work', color: '#0EA5E9', visible: true },
-        { id: '3', name: 'Family', color: '#D946EF', visible: true },
+        { id: 'personal', name: 'Personal', color: '#9b87f5', visible: true },
+        { id: 'work', name: 'Work', color: '#0EA5E9', visible: true },
+        { id: 'family', name: 'Family', color: '#D946EF', visible: true },
       ]);
     }
 
@@ -63,15 +72,17 @@ const Sidebar: React.FC<SidebarProps> = ({ onOpenCreateEvent, onViewChange, show
   };
 
   const toggleCalendarVisibility = (id: string, list: 'my' | 'other') => {
-    if (list === 'my') {
-      const updated = myCalendars.map(cal => cal.id === id ? { ...cal, visible: !cal.visible } : cal);
-      setMyCalendars(updated);
-      saveCalendarsToStorage('my', updated);
-    } else {
-      const updated = otherCalendars.map(cal => cal.id === id ? { ...cal, visible: !cal.visible } : cal);
-      setOtherCalendars(updated);
-      saveCalendarsToStorage('other', updated);
-    }
+  if (list === 'my') {
+    const updated = myCalendars.map(cal => cal.id === id ? { ...cal, visible: !cal.visible } : cal);
+    setMyCalendars(updated);
+    saveCalendarsToStorage('my', updated);
+    setVisibleCalendars(prev => ({ ...prev, [id]: !prev[id] }));
+  } else {
+    const updated = otherCalendars.map(cal => cal.id === id ? { ...cal, visible: !cal.visible } : cal);
+    setOtherCalendars(updated);
+    saveCalendarsToStorage('other', updated);
+    setVisibleCalendars(prev => ({ ...prev, [id]: !prev[id] }));
+  }
   };
 
   const handleAddCalendarClick = (list: 'my' | 'other') => {
@@ -84,7 +95,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onOpenCreateEvent, onViewChange, show
     if (!newCalendarName.trim()) return;
 
     const newCalendar: CalendarItem = {
-      id: Date.now().toString(),
+      id: newCalendarName.trim().toLowerCase().replace(/\s+/g, "-"),
       name: newCalendarName,
       color: randomColor(),
       visible: true,
