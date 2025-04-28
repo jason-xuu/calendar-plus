@@ -30,25 +30,25 @@ const Login = () => {
     handleMagicLinkLogin();
   }, [navigate]);
 
-  // ✅ Send magic link
   const handleLogin = async () => {
     setIsSending(true);
     setMessage("");
-
+  
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: "http://localhost:8080/login", // 👈 redirects back to login page
+        emailRedirectTo: "https://calendar-plus-app.vercel.app/", // ✅ Only this
+        // (no shouldCreateUserSession)
       },
     });
-
+  
     if (error) {
       console.error("Login failed:", error.message);
       setMessage("❌ Failed to send login link. Please try again.");
     } else {
       setMessage("✅ Check your email for the magic login link.");
     }
-
+  
     setIsSending(false);
   };
 

@@ -10,21 +10,18 @@ const Landing = () => {
   const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
-
-    const handleMagicLink = async () => {
+    const checkSession = async () => {
       const { data: { session }, error } = await supabase.auth.getSession();
-      
+      console.log("Session:", session, "Error:", error);
+  
       if (session) {
-        console.log("✅ Logged in via session!");
         navigate("/calendar");
       } else {
-        console.log("🚫 No session found.");
         setIsChecking(false);
       }
     };
-    
-
-    handleMagicLink();
+  
+    checkSession();
   }, [navigate]);
 
   if (isChecking) {
