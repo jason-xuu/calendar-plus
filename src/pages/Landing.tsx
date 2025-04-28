@@ -12,18 +12,18 @@ const Landing = () => {
   useEffect(() => {
     const checkSession = async () => {
       const url = new URL(window.location.href);
-      const accessToken = url.searchParams.get("access_token");
+      const token = url.searchParams.get("token"); // 🛑 Get token, not access_token
   
-      if (accessToken) {
-        console.log("🔵 Access token found, trying exchange...");
-        const { error } = await supabase.auth.exchangeCodeForSession(accessToken); // 🛠️ Pass it in!
+      if (token) {
+        console.log("🔵 Token found in URL, trying exchange...");
+        const { error } = await supabase.auth.exchangeCodeForSession(token); // 🛑 Pass token
         if (error) {
           console.error("❌ Error exchanging session:", error.message);
           setIsChecking(false);
           return;
         }
       } else {
-        console.log("⚪ No access token found in URL.");
+        console.log("⚪ No token found in URL.");
       }
   
       const { data: { session }, error } = await supabase.auth.getSession();
