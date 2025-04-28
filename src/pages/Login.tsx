@@ -34,11 +34,13 @@ const Login = () => {
     setIsSending(true);
     setMessage("");
   
+    // ✅ Save email to localStorage
+    localStorage.setItem('calendarplus_email', email);
+  
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: "https://calendar-plus-app.vercel.app/", // ✅ Only this
-        // (no shouldCreateUserSession)
+        emailRedirectTo: "https://calendar-plus-app.vercel.app/",
       },
     });
   

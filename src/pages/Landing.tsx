@@ -12,23 +12,31 @@ const Landing = () => {
   useEffect(() => {
     const checkSession = async () => {
       const url = new URL(window.location.href);
-      const token = url.searchParams.get("token"); // 🛑 Get token, not access_token
-  
-      if (token) {
-        console.log("🔵 Token found in URL, trying exchange...");
-        const { error } = await supabase.auth.exchangeCodeForSession(token); // 🛑 Pass token
+      const token = url.searchParams.get("token");
+      const email = localStorage.getItem("calendarplus_email"); // 🛑 Retrieve email
+    
+      if (token && email) {
+        console.log("🔵 Token and email found, verifying magic link...");
+        const { data, error } = await supabase.auth.verifyOtp({
+          type: "magiclink",
+          token,
+          email, // ✅ Must pass email too!
+        });
+    
         if (error) {
-          console.error("❌ Error exchanging session:", error.message);
+          console.error("❌ Error verifying magic link:", error.message);
           setIsChecking(false);
           return;
         }
+    
+        console.log("✅ Magic link verified:", data.session);
       } else {
-        console.log("⚪ No token found in URL.");
+        console.log("⚪ No token or email found, checking session normally...");
       }
-  
+    
       const { data: { session }, error } = await supabase.auth.getSession();
-      console.log("📦 Session after exchange:", session, "Error:", error);
-  
+      console.log("📦 Session after checking:", session, "Error:", error);
+    
       if (session) {
         console.log("✅ Session exists, navigating to /calendar...");
         navigate("/calendar");
@@ -37,7 +45,8 @@ const Landing = () => {
         setIsChecking(false);
       }
     };
-  
+    
+
     checkSession();
   }, [navigate]);
 
