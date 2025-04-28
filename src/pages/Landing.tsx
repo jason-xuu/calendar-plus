@@ -11,41 +11,21 @@ const Landing = () => {
 
   useEffect(() => {
     const checkSession = async () => {
-      const url = new URL(window.location.href);
-      const token = url.searchParams.get("token");
-      const email = localStorage.getItem("calendarplus_email"); // 🛑 Retrieve email
-    
-      if (token && email) {
-        console.log("🔵 Token and email found, verifying magic link...");
-        const { data, error } = await supabase.auth.verifyOtp({
-          type: "magiclink",
-          token,
-          email, // ✅ Must pass email too!
-        });
-    
-        if (error) {
-          console.error("❌ Error verifying magic link:", error.message);
-          setIsChecking(false);
-          return;
-        }
-    
-        console.log("✅ Magic link verified:", data.session);
-      } else {
-        console.log("⚪ No token or email found, checking session normally...");
-      }
-    
       const { data: { session }, error } = await supabase.auth.getSession();
-      console.log("📦 Session after checking:", session, "Error:", error);
-    
+      console.log("Session:", session, "Error:", error);
+
       if (session) {
         console.log("✅ Session exists, navigating to /calendar...");
+
+        // Clean the URL to remove #access_token after session is established
+        window.history.replaceState({}, document.title, "/");
+
         navigate("/calendar");
       } else {
-        console.log("🚫 No session found after checking.");
+        console.log("No session found, staying on Landing page.");
         setIsChecking(false);
       }
     };
-    
 
     checkSession();
   }, [navigate]);
