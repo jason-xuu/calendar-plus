@@ -12,31 +12,13 @@ const Landing = () => {
   useEffect(() => {
 
     const handleMagicLink = async () => {
-      const url = new URL(window.location.href);
-      const code = url.searchParams.get('code');
-      const state = url.searchParams.get('state');
-    
-      console.log('🌟 URL Params:', { code, state });
-    
-      if (code) {
-        const { data, error } = await supabase.auth.exchangeCodeForSession(code);
-        console.log('🛠️ exchangeCodeForSession result:', { data, error });
-    
-        if (error) {
-          console.error('❌ Error exchanging code:', error.message);
-        }
-      } else {
-        console.log('⚠️ No code found in URL');
-      }
-    
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      console.log('📦 getSession result:', { session, sessionError });
-    
+      const { data: { session }, error } = await supabase.auth.getSession();
+      
       if (session) {
-        console.log('✅ Session found! Navigating to /calendar');
+        console.log("✅ Logged in via session!");
         navigate("/calendar");
       } else {
-        console.log('🚫 No session, staying on landing page');
+        console.log("🚫 No session found.");
         setIsChecking(false);
       }
     };
