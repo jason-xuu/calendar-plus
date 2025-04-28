@@ -1,11 +1,34 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { CalendarIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { BackgroundGradientAnimation } from "@/components/ui/background-gradient-animation";
+import { supabase } from "@/lib/supabase";
 
 const Landing = () => {
   const navigate = useNavigate();
+  const [isChecking, setIsChecking] = useState(true);
+
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        navigate("/calendar"); // Already logged in, go to calendar
+      } else {
+        setIsChecking(false); // Not logged in, show landing page
+      }
+    };
+
+    checkSession();
+  }, [navigate]);
+
+  if (isChecking) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-background">
+        <p className="text-white text-xl">Loading...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="relative min-h-screen overflow-hidden">
