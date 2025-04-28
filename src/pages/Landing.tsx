@@ -10,16 +10,33 @@ const Landing = () => {
   const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
-    const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        navigate("/calendar"); // Already logged in, go to calendar
+
+    const handleMagicLink = async () => {
+      const url = new URL(window.location.href);
+      const code = url.searchParams.get('code'); // get the ?code= from the URL
+    
+      if (code) {
+        const { error } = await supabase.auth.exchangeCodeForSession(code);
+    
+        if (error) {
+          console.error("Error exchanging code:", error.message);
+        }
       } else {
-        setIsChecking(false); // Not logged in, show landing page
+        console.log("No code found in URL.");
+      }
+    
+      const { data: { session } } = await supabase.auth.getSession();
+    
+      if (session) {
+        console.log("Logged in via magic link!");
+        navigate("/calendar");
+      } else {
+        console.log("No session, staying on landing page.");
+        setIsChecking(false);
       }
     };
 
-    checkSession();
+    handleMagicLink();
   }, [navigate]);
 
   if (isChecking) {
@@ -32,9 +49,7 @@ const Landing = () => {
 
   return (
     <div className="relative min-h-screen overflow-hidden">
-      {/* Animated background */}
       <BackgroundGradientAnimation>
-        {/* Content */}
         <div className="relative min-h-screen flex flex-col items-center justify-center p-6 md:p-8 z-10">
           <div className="text-center mb-8 animate-fade-in max-w-2xl mx-auto">
             <div className="flex items-center justify-center gap-2 mb-4">

@@ -100,8 +100,8 @@ const CalendarComponent = React.forwardRef<any, CalendarComponentProps>(({
     setIsEventModalOpen(true);
   };
 
-  console.log('Visible Calendars:', visibleCalendars);
-  console.log('Events passed to calendar:', events);
+  //console.log('Visible Calendars:', visibleCalendars);
+  //console.log('Events passed to calendar:', events);
 
   return (
     <div className="h-full flex flex-col">
