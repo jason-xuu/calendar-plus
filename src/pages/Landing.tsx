@@ -11,12 +11,29 @@ const Landing = () => {
 
   useEffect(() => {
     const checkSession = async () => {
+      const url = new URL(window.location.href);
+      const accessToken = url.searchParams.get("access_token");
+  
+      if (accessToken) {
+        console.log("🔵 Access token found, trying exchange...");
+        const { error } = await supabase.auth.exchangeCodeForSession(accessToken); // 🛠️ Pass it in!
+        if (error) {
+          console.error("❌ Error exchanging session:", error.message);
+          setIsChecking(false);
+          return;
+        }
+      } else {
+        console.log("⚪ No access token found in URL.");
+      }
+  
       const { data: { session }, error } = await supabase.auth.getSession();
-      console.log("Session:", session, "Error:", error);
+      console.log("📦 Session after exchange:", session, "Error:", error);
   
       if (session) {
+        console.log("✅ Session exists, navigating to /calendar...");
         navigate("/calendar");
       } else {
+        console.log("🚫 No session found after checking.");
         setIsChecking(false);
       }
     };
