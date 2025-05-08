@@ -1,21 +1,23 @@
-
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useKindeAuth } from "@kinde-oss/kinde-auth-react";
+import { supabase } from '@/lib/supabase';
 
 const AuthCallback = () => {
   const navigate = useNavigate();
-  const { isAuthenticated, isLoading } = useKindeAuth();
 
   useEffect(() => {
-    if (!isLoading) {
-      if (isAuthenticated) {
-        navigate('/');
+    const handleAuthCallback = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (session) {
+        navigate('/calendar');
       } else {
         navigate('/landing');
       }
-    }
-  }, [isAuthenticated, isLoading, navigate]);
+    };
+
+    handleAuthCallback();
+  }, [navigate]);
 
   return (
     <div className="min-h-screen flex flex-col justify-center items-center bg-secondary/30">

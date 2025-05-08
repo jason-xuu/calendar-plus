@@ -40,7 +40,7 @@ const Login = () => {
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: "https://calendar-plus-app.vercel.app/",
+        emailRedirectTo: "https://calendar-plus-app.vercel.app/auth/callback",
       },
     });
   
