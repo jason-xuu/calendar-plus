@@ -103,7 +103,7 @@ const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, event, date, s
     setIsLoading(true);
 
     try {
-      const newEvent = {
+      const eventData = {
         title: formData.title,
         start: new Date(formData.start).toISOString(),
         end: new Date(formData.end).toISOString(),
@@ -111,14 +111,41 @@ const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, event, date, s
         description: formData.description,
         location: formData.location,
         calendar: formData.calendar,
-        calendarId: formData.calendar.toLowerCase(), // ✅ add calendarId properly!
+        calendarId: formData.calendar.toLowerCase(),
       };
 
-      const { data, error } = await supabase.from('events').insert(newEvent).select();
+      let data;
+      let error;
+
+      if (formData.id) {
+        // Update existing event
+        const { data: updateData, error: updateError } = await supabase
+          .from('events')
+          .update(eventData)
+          .eq('id', formData.id)
+          .select();
+        data = updateData;
+        error = updateError;
+      } else {
+        // Create new event
+        const { data: insertData, error: insertError } = await supabase
+          .from('events')
+          .insert(eventData)
+          .select();
+        data = insertData;
+        error = insertError;
+      }
 
       if (error) throw error;
 
-      setEvents(prev => [...prev, data[0]]);
+      if (formData.id) {
+        // Update existing event in the state
+        setEvents(prev => prev.map(e => e.id === formData.id ? data[0] : e));
+      } else {
+        // Add new event to the state
+        setEvents(prev => [...prev, data[0]]);
+      }
+      
       onClose();
     } catch (error) {
       console.error('Error saving event:', error);
