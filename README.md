@@ -5,7 +5,7 @@ A modern, full-stack calendar application built with React, Vite, TypeScript, Su
 ---
 
 ## Live link:
-calendar-plus-app.vercel.ap
+[Try the Calendar+ App](https://calendar-plus-app.vercel.app)
 
 ## Features
 
