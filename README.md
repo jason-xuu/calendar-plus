@@ -4,6 +4,9 @@ A modern, full-stack calendar application built with React, Vite, TypeScript, Su
 
 ---
 
+## Live link:
+calendar-plus-app.vercel.ap
+
 ## Features
 
 - User Authentication (Supabase)
